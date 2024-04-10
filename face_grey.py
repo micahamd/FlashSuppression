@@ -1,5 +1,5 @@
 import tkinter as tk
-from PIL import Image, ImageTk, ImageEnhance
+from PIL import Image, ImageTk, ImageSequence
 import time
 import os
 import random
@@ -102,7 +102,7 @@ def change_image():
     # Put the new image into the queue
     image_queue.put(images2[image_index2])
     execution_time = time.time() - start_time  # Calculate the execution time
-    delay = max(1.0 - execution_time, 0)  # Calculate the delay for the next call
+    delay = max(1 - execution_time, 0)  # Calculate the delay for the next call
     scheduled_task = threading.Timer(delay, change_image)  # Schedule the next image change
     scheduled_task.start()
     image_cycle_running = True  # Set the flag to True
@@ -277,8 +277,7 @@ def reset_image(from_space_press=False):
     else:
         # Stop the image cycling if it's the last trial
         stop_image_cycle()
-        
-    
+            
 # Create a label for the reaction time with white text
 rt_label = tk.Label(root, text="", fg="black")
 rt_label.place(x=750, y=40)  # Place the label at the coordinates 
