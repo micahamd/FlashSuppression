@@ -1,12 +1,19 @@
 import os
-import time
 import threading
+import time
 import tkinter as tk
 from PIL import Image, ImageTk
+from face_menu import FaceMenu  
+
+
+# Define constants
+WIDTH = 640
+HEIGHT = 800
+SQUARE_SIZE = 10
 
 
 class ImageCanvas:
-    def __init__(self, root, images, other_canvas=None, width=300, height=200):
+    def __init__(self, root, images, other_canvas=None, width=WIDTH, height=HEIGHT):
         self.trial_counter = 60
         self.trial_counter_var = tk.StringVar()  # Create a StringVar to hold the trial counter value
         self.update_trial_counter_var()
@@ -40,16 +47,17 @@ class ImageCanvas:
     def update_canvas(self):
         start_time = time.perf_counter()
         while self.image_cycle_running:
-            self.canvas.delete("image")
-            self.canvas.create_image(10, 10, image=self.images[self.current_image_index], anchor='nw', tags="image")
+            new_image = self.canvas.create_image(10, 10, image=self.images[self.current_image_index], anchor='nw', tags="new_image")
             self.canvas.tag_raise("fixation")
+            self.canvas.delete("image")
+            self.canvas.itemconfig(new_image, tags="image")
             self.current_image_index = (self.current_image_index + 1) % len(self.images)
             elapsed_time = time.perf_counter() - start_time
             remaining_time = 0.1 - elapsed_time
             if remaining_time > 0:
                 time.sleep(remaining_time)
             start_time = time.perf_counter()
-
+            
     def clear_canvas(self):
         self.canvas.delete("image")
         self.grey_image_item = self.canvas.create_image(10, 10, image=self.grey_img, anchor='nw', tags="image")
@@ -73,7 +81,7 @@ class ImageCanvas:
             self.decrement_trial_counter()  # Decrement trial counter when spacebar is pressed and image cycle is not running
 
     def draw_checkerboard(self):
-        square_size = 10
+        square_size = SQUARE_SIZE
         colors = ['white', 'black']
         for i in range(0, self.canvas.winfo_width(), square_size):
             color = colors[(i // square_size) % 2]
@@ -114,27 +122,23 @@ def main():
     button_frame = tk.Frame(root)
     button_frame.pack()
 
-    switch_slider_label = tk.Label(button_frame, text="Switch direction:", fg="black")
-    switch_slider_label.pack(side=tk.LEFT)
-
-    switch_slider = tk.Scale(button_frame, from_=0, to=1, orient=tk.HORIZONTAL, length=100, sliderlength=50, command=lambda value: pack_canvases(value, canvas1, canvas2), showvalue=0)
-    switch_slider.set(0)
-    switch_slider.pack(side=tk.LEFT)
-
-    images1 = resize_images(image_files1, 300, 200)
+    images1 = resize_images(image_files1, WIDTH, HEIGHT)
     canvas1 = ImageCanvas(root, images1)
 
     trial_counter_display = tk.Label(button_frame, textvariable=canvas1.trial_counter_var, fg="black")  # Use the StringVar as the textvariable
     trial_counter_display.pack(side=tk.LEFT)
 
-    images2 = resize_images(image_files2, 300, 200)
+    images2 = resize_images(image_files2, WIDTH, HEIGHT)
     canvas2 = ImageCanvas(root, images2)
 
     canvas1.other_canvas = canvas2
     root.bind('<space>', canvas1.handle_space_press)
 
-    root.mainloop()
+    # Create a menu button that opens the FaceMenu window when clicked
+    menu_button = tk.Button(button_frame, text="Menu", command=lambda: FaceMenu(root, canvas1, canvas2))
+    menu_button.pack(side=tk.LEFT)
 
+    root.mainloop()
 
 if __name__ == "__main__":
     main()
