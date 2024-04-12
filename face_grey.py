@@ -102,7 +102,7 @@ def change_image():
     # Put the new image into the queue
     image_queue.put(images2[image_index2])
     execution_time = time.time() - start_time  # Calculate the execution time
-    delay = max(1 - execution_time, 0)  # Calculate the delay for the next call
+    delay = max(.5 - execution_time, 0)  # Calculate the delay for the next call
     scheduled_task = threading.Timer(delay, change_image)  # Schedule the next image change
     scheduled_task.start()
     image_cycle_running = True  # Set the flag to True
