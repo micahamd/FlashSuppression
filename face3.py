@@ -24,7 +24,7 @@ class ImageCanvas:
         self.other_canvas = other_canvas
         self.canvas = tk.Canvas(root, width=width, height=height)
         self.images = images
-        self.image_files = image_files
+        self.image_files = image_files if image_files is not None else []
         self.current_image_index = 0
         self.image_cycle_running = False
         self.grey_image_displayed = False
@@ -92,12 +92,12 @@ class ImageCanvas:
                 'Side': side
             })
             self.start_time = None
+            time.sleep(.3)  # Add a wait condition
         else:
             self.image_cycle_running = True
             threading.Thread(target=self.update_canvas).start()
             self.decrement_trial_counter()  # Decrement trial counter when spacebar is pressed and image cycle is not running
             self.start_time = time.perf_counter()
-            time.sleep(1)
 
     def save_reaction_times(self):
         with open('reaction_times.json', 'w') as f:
@@ -124,10 +124,8 @@ class ImageCanvas:
     def draw_fixation_point(self):
         self.canvas.create_text(self.canvas.winfo_width() // 2, self.canvas.winfo_height() // 2, text='+', font=('Arial', 20), fill='white', tags="fixation")
 
-
 def resize_images(image_files, width, height):
-        return [(ImageTk.PhotoImage(Image.open(file).resize((width-15, height-15))), file) for file in image_files]
-
+    return [(ImageTk.PhotoImage(Image.open(file).resize((width-15, height-15))), file) for file in image_files]
 
 def pack_canvases(slider_value, canvas1, canvas2):
     side1 = tk.LEFT if int(slider_value) == 0 else tk.RIGHT
@@ -136,17 +134,17 @@ def pack_canvases(slider_value, canvas1, canvas2):
     canvas2.pack(side=side2, padx=25)
 
 def main():
+    root = tk.Tk()
+    from blend_img import images2  # The target image(s)
+    
     image_dir = MOND_DIR
     image_files1 = [os.path.join(image_dir, file) for file in os.listdir(image_dir) if file.endswith('.jpg')]
-    image_files2 = ["C:/Users/Admin/Python Projects/face_presentation/grey.png"]
-
-    root = tk.Tk()
+    
     button_frame = tk.Frame(root)
     button_frame.pack()
 
     images1 = resize_images(image_files1, WIDTH, HEIGHT)
-    images2 = resize_images(image_files2, WIDTH, HEIGHT)
-
+    
     # Define canvas1 and canvas2 as None before they are actually defined
     canvas1 = None
     canvas2 = None
@@ -162,7 +160,7 @@ def main():
 
     # Now define canvas1 and canvas2
     canvas1 = ImageCanvas(root, images1, image_files1, face_menu)
-    canvas2 = ImageCanvas(root, images2, image_files2, face_menu)
+    canvas2 = ImageCanvas(root, images2, None, face_menu)
 
     # Update the canvases in the face_menu instance
     face_menu.canvas1 = canvas1
