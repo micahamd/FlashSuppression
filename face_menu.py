@@ -1,13 +1,37 @@
 import tkinter as tk
 
 class FaceMenu:
-    def __init__(self, root, canvas1, canvas2):
-        self.window = tk.Toplevel(root)
+    def __init__(self, root, canvas1, canvas2,callback):
+        self.root = root
         self.canvas1 = canvas1
         self.canvas2 = canvas2
+        self.callback = callback
+        self.trial_number = None
+        self.create_window()
 
-              
-        # Switch slider label
+    def get_trial_number(self):
+        if not self.window.winfo_exists():
+            return self.trial_number
+        return int(self.trial_number_entry.get())
+
+    def store_trial_number_and_destroy(self):
+        self.trial_number = self.get_trial_number()
+        self.side = 'Left' if self.switch_slider.get() == 0 else 'Right'
+        self.window.destroy()
+        self.callback(self.trial_number)  
+        
+    def create_window(self):
+        self.window = tk.Toplevel(self.root)
+
+        trial_number_label = tk.Label(self.window, text="Enter trial number (1-999):")
+        trial_number_label.pack(side=tk.LEFT)
+
+        # Entry for the trial number
+        self.trial_number_entry = tk.Entry(self.window)
+        self.trial_number_entry.insert(0, "60")  # Default value
+        self.trial_number_entry.pack(side=tk.LEFT)
+
+         # Switch slider label
         switch_slider_label = tk.Label(self.window, text="Switch target:", fg="black")
         switch_slider_label.pack(side=tk.LEFT)
 
@@ -24,8 +48,18 @@ class FaceMenu:
         right_label.pack(side=tk.LEFT)
 
         # Create an 'OK' button that destroys the window when clicked
-        ok_button = tk.Button(self.window, text="OK", command=self.window.destroy)
+        ok_button = tk.Button(self.window, text="OK", command=self.store_trial_number_and_destroy)
         ok_button.pack()
+
+    def show_window(self):
+        if not self.window.winfo_exists():
+            self.create_window()
+        self.window.deiconify()
+        self.window.wait_window()  # Wait for the window to be destroyed
+        self.trial_number = self.get_trial_number()
+
+    def get_stored_trial_number(self):
+        return self.trial_number
 
     def pack_canvases(self, slider_value):
         side1 = tk.LEFT if int(slider_value) == 0 else tk.RIGHT
