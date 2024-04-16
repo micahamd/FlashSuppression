@@ -6,9 +6,10 @@ import time
 class ImageCycler:
     MASK_CYCLE_TIME = 100  # time in milliseconds for each cycle
 
-    def __init__(self, root, image_dir):
+    def __init__(self, root, image_dir,cycle_time):
         self.root = root if root else tk.Tk()
         self.image_dir = image_dir
+        self.cycle_time = cycle_time
         self.load_images()
         self.canvas = tk.Canvas(root, width=640, height=800, bg='grey')
         self.canvas.pack()

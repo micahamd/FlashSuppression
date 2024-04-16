@@ -15,7 +15,7 @@ def load_config():
         }
 
 class Stimulus:
-    RGB_CONSTANT = (170, 170, 170, 0)
+    RGB_CONSTANT = (145,145,145, 0)
 
     def __init__(self, image_dir, canvas_size=(640, 800), root=None):
         self.config = load_config()  # Load the configuration at initialization

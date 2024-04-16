@@ -16,11 +16,15 @@ def load_config():
             'mask_position': 'left'  # Default position of mask module
         }
 
-def create_module(root, module_class, image_dir, canvas_side):
+def create_module(root, module_class, image_dir, canvas_side, cycle_time=None):
     # Initialize the module with a specified part of the root window
-    module = module_class(root=root, image_dir=image_dir)
+    if module_class == ImageCycler:
+        module = module_class(root=root, image_dir=image_dir, cycle_time=cycle_time)
+    else:
+        module = module_class(root=root, image_dir=image_dir)
     module.canvas.pack(side=canvas_side, fill="both", expand=True)
     return module
+
 
 trial_data = [] # List to store trial data
 
@@ -67,6 +71,7 @@ def main():
     # Load the configuration
     config = load_config()
     trials_total = int(config['trials_total'])
+    cycle_time = int(config.get('mask_cycle_time', 100))  # Load cycle time from config or default to 100 ms
 
     # Start the main application
     main_root = tk.Tk()
@@ -77,8 +82,8 @@ def main():
     mask_position = tk.LEFT if config['mask_position'] == 'left' else tk.RIGHT
     stim_position = tk.RIGHT if mask_position == tk.LEFT else tk.LEFT
 
-    # Create both modules side by side
-    mask_module = create_module(main_root, ImageCycler, config['mask_dir'], mask_position)
+    # Create both modules side by side, passing cycle_time to ImageCycler
+    mask_module = create_module(main_root, ImageCycler, config['mask_dir'], mask_position, cycle_time)
     stim_module = create_module(main_root, Stimulus, config['stim_dir'], stim_position)
 
     # Trial count tracker
