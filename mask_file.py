@@ -30,7 +30,7 @@ class ImageCycler:
         self.canvas.delete("image")
         self.canvas.itemconfig(new_image, tags="image")
         self.current_image_index = (self.current_image_index + 1) % len(self.images)
-        self.root.after(self.MASK_CYCLE_TIME, self.update_canvas)
+        self.root.after(self.cycle_time, self.update_canvas)
 
     def handle_space_press(self, event):
         if self.image_cycle_running:

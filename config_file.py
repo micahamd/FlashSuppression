@@ -45,11 +45,11 @@ class ConfigWindow:
         self.side_scale.set(0)  # Default to left (0 for left, 1 for right)
 
         # Stimulus transition duration
-        self.duration_label = tk.Label(master, text="Stimulus transition (1000 to 100000 ms):")
+        self.duration_label = tk.Label(master, text="Stimulus transition (3000 to 100000 ms):")
         self.duration_label.grid(row=4, column=0, sticky='w')
         self.duration_entry = tk.Entry(master)
         self.duration_entry.grid(row=4, column=1, sticky='w')
-        self.duration_entry.insert(0, "10000")  # Default blend duration
+        self.duration_entry.insert(0, "10000")  # Default blend duration 10s
 
         # Mask cycle time
         self.cycle_time_label = tk.Label(master, text="Mask refresh (17 to 10000 ms):")
@@ -72,10 +72,10 @@ class ConfigWindow:
         try:
             duration = int(self.duration_entry.get())
             cycle_time = int(self.cycle_time_entry.get())
-            if not 1000 <= duration <= 100000 or not 17 <= cycle_time <= 10000:
+            if not 3000 <= duration <= 100000 or not 17 <= cycle_time <= 10000:
                 raise ValueError("Input out of allowed range")
         except ValueError as e:
-            messagebox.showerror("Invalid Input", "Blend Duration must be between 1000 and 100000 milliseconds. Mask Cycle Time must be between 17 and 10000 milliseconds.")
+            messagebox.showerror("Invalid Input", "Stimulus Blend Duration must be between 3000 and 100000 milliseconds. Mask Cycle Time must be between 17 and 10000 milliseconds.")
             return
 
         # Save configuration to file

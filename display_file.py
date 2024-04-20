@@ -1,5 +1,7 @@
 import tkinter as tk
+import csv
 import json
+from functools import partial
 from mask_file import ImageCycler
 from stim_file import Stimulus
 from config_file import ConfigWindow
@@ -25,42 +27,39 @@ def create_module(root, module_class, image_dir, canvas_side, cycle_time=None):
     module.canvas.pack(side=canvas_side, fill="both", expand=True)
     return module
 
-
 trial_data = [] # List to store trial data
 
-def handle_space_press(event, modules, trial_count, trials_total):
+def handle_space_press(event, modules, trial_count, trials_total, response):
     if trial_count[0] >= trials_total:
-        print("All trials completed.") # Check if all trials are completed
-        write_trial_data_to_json(trial_data)  # Write trial data to JSON file
+        print("All trials completed.")
+        write_trial_data_to_csv(trial_data)
         for module in modules:
-            module.root.quit()  # Optionally close the program
+            module.root.quit()
         return
 
-    # Toggle the state of each module based on current trial state
-    if modules[0].image_cycle_running:  # Assuming both modules share the running state
-        # End of a trial
+    if modules[0].image_cycle_running:
         for module in modules:
             image_y_position, image_path, reaction_time = module.handle_space_press(event)
             if image_y_position is not None:
-                print(f"Y position: {image_y_position}")
-                print(f"Image path: {image_path}")
-                print(f"Reaction Time: {reaction_time * 1000}")
                 trial_data.append({
                     'Trial Number': trial_count[0],
                     'Y Position': image_y_position,
                     'Image Path': image_path,
-                    'Reaction Time': reaction_time * 1000
-                })                          
+                    'Reaction Time': reaction_time * 1000,
+                    'Response': response  # Now correctly records the key used
+                })
         print(f"Trial {trial_count[0]} completed.")
         trial_count[0] += 1
     else:
-        # Start of a trial
         for module in modules:
             module.handle_space_press(event)
 
-def write_trial_data_to_json(trial_data):
-    with open('trial_data.json', 'w') as output_file:
-        json.dump(trial_data, output_file)
+def write_trial_data_to_csv(trial_data):
+    with open('trial_data.csv', mode='w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=['Trial Number', 'Y Position', 'Image Path', 'Reaction Time', 'Response'])
+        writer.writeheader()
+        for data in trial_data:
+            writer.writerow(data)
 
 def main():
     # Start with the configuration window
@@ -89,12 +88,12 @@ def main():
     # Trial count tracker
     trial_count = [0]
 
-    # Bind space press to a unified handler
-    main_root.bind('<space>', lambda event: handle_space_press(event, [mask_module, stim_module], trial_count, trials_total))
+    # Bind each key using a loop with functools.partial to handle the response key
+    for key in ('<space>', 'a', 'z'):
+        main_root.bind(key, partial(handle_space_press, modules=[mask_module, stim_module], trial_count=trial_count, trials_total=trials_total, response=key))
 
     def on_close():
-        """Handle the application close event."""
-        write_trial_data_to_json(trial_data)
+        write_trial_data_to_csv(trial_data)
         main_root.destroy()
 
     main_root.protocol("WM_DELETE_WINDOW", on_close)  # Attach the close handler
