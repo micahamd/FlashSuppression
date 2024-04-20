@@ -1,9 +1,9 @@
 import tkinter as tk
 from PIL import Image, ImageTk
-import os
 import random
 import time
 import json
+import os
 
 def load_config():
     try:
@@ -15,17 +15,22 @@ def load_config():
         }
 
 class Stimulus:
-    RGB_CONSTANT = (145,145,145, 0)
+    RGB_CONSTANT = (145, 145, 145, 0)
 
-    def __init__(self, image_dir, canvas_size=(640, 800), root=None):
-        self.config = load_config()  # Load the configuration at initialization
-        self.duration = int(self.config.get('blend_duration', 10000))  # Use the configured duration or default
-        self.image_files = [os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.endswith(('.png','.jpg'))]
+    def __init__(self, image_dir, root=None):
+        self.config = load_config()
+        self.duration = int(self.config.get('blend_duration', 10000))
+        self.image_files = [os.path.join(image_dir, f) for f in os.listdir(image_dir) if f.endswith(('.png', '.jpg'))]
         self.images = [Image.open(fp).convert("RGBA").resize((200, 300)) for fp in self.image_files]
         self.root = root if root else tk.Tk()
         self.root.configure(bg='black')
-        self.canvas = tk.Canvas(self.root, width=canvas_size[0], height=canvas_size[1], bg='grey')
-        self.canvas.pack()
+
+        # Instead of using screen width and height, fix the canvas size
+        self.canvas_width = 640
+        self.canvas_height = 800
+        self.canvas = tk.Canvas(self.root, width=self.canvas_width, height=self.canvas_height, bg='grey')
+        self.canvas.pack(fill='both', expand=False)  # Set expand to False to keep the canvas size fixed
+
         self.current_image_index = 0
         self.blending = False
         self.alpha = 0
@@ -38,7 +43,9 @@ class Stimulus:
         self.image_path = None
 
     def place_fixation_point(self):
-        self.canvas.create_text(320, 400, text='+', font=('Arial', 20), fill='white')
+        center_x = self.canvas_width / 2
+        center_y = self.canvas_height / 2
+        self.canvas.create_text(center_x, center_y, text='+', font=('Arial', 20), fill='white')
 
     def blend_image(self):
         if not self.blending:
@@ -49,7 +56,8 @@ class Stimulus:
         transparent_img = Image.new("RGBA", self.images[self.current_image_index].size, self.RGB_CONSTANT)
         blended = Image.blend(transparent_img, self.images[self.current_image_index], self.alpha)
         tk_img = ImageTk.PhotoImage(blended)
-        self.canvas.create_image(320, self.y_position, anchor=tk.N, image=tk_img)
+        center_x = self.canvas_width / 2
+        self.canvas.create_image(center_x, self.y_position, anchor=tk.N, image=tk_img)
         self.canvas.image = tk_img
         self.image_y_position = self.y_position
         self.image_path = self.image_files[self.current_image_index]
@@ -80,7 +88,7 @@ class Stimulus:
 
     def run(self):
         self.root.mainloop()
-        
+
 # if __name__ == "__main__":
 #     stimulus = Stimulus('C:/Users/Admin/Python Projects/face_presentation/face_folder')
 #     stimulus.run()
