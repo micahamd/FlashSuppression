@@ -19,18 +19,30 @@ def load_config():
         }
 
 def create_module(root, module_class, image_dir, canvas_side, cycle_time=None):
-    # Create a frame with a black background to act as the outline
-    frame = tk.Frame(root, background="black")
-    frame.pack(side=canvas_side, fill="both", expand=True)
+    # Create a canvas to act as the outline
+    outline = tk.Canvas(root, bg="black")
+    outline.pack(side=canvas_side, fill="both", expand=True)
+
+    # Function to draw a checkerboard pattern on the outline
+    def draw_checkerboard(event):
+        square_size = 20  # Size of each square in the checkerboard
+        outline.delete("checkerboard")  # Remove the old checkerboard pattern
+        for i in range(0, event.width, square_size * 2):
+            for j in range(0, event.height, square_size * 2):
+                outline.create_rectangle(i, j, i + square_size, j + square_size, fill="white", tags="checkerboard")
+                outline.create_rectangle(i + square_size, j + square_size, i + square_size * 2, j + square_size * 2, fill="white", tags="checkerboard")
+
+    # Bind the function to the <Configure> event
+    outline.bind("<Configure>", draw_checkerboard)
 
     # Initialize the module with a specified part of the root window
     if module_class == ImageCycler:
-        module = module_class(root=frame, image_dir=image_dir, cycle_time=cycle_time)
+        module = module_class(root=outline, image_dir=image_dir, cycle_time=cycle_time)
     else:
-        module = module_class(root=frame, image_dir=image_dir)
+        module = module_class(root=outline, image_dir=image_dir)
 
     # Pack the canvas with a margin to create the outline effect
-    module.canvas.pack(side="top", fill="none", expand=False, pady=50)  # Add padding here
+    module.canvas.pack(side="top", fill="none", expand=True, padx=20, pady=20)  # Add padding here
 
     return module
 
