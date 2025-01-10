@@ -58,9 +58,16 @@ class ConfigWindow:
         self.cycle_time_entry.grid(row=5, column=1, sticky='w')
         self.cycle_time_entry.insert(0, "100")  # Default cycle time
 
+        # Border-Canvas offset
+        self.offset_label = tk.Label(master, text="Border-Canvas offset (for alignment):")
+        self.offset_label.grid(row=6, column=0, sticky='w')
+        self.offset_entry = tk.Entry(master)
+        self.offset_entry.grid(row=6, column=1, sticky='w')
+        self.offset_entry.insert(0, "6")  # Default offset value
+
         # Save button
         self.save_button = tk.Button(master, text="Save Configuration", command=self.save_config)
-        self.save_button.grid(row=6, column=0, columnspan=2, pady=10)  # Add some padding around the save button
+        self.save_button.grid(row=7, column=0, columnspan=2, pady=10)  # Add some padding around the save button
 
     def select_directory(self, module_type):
         directory = filedialog.askdirectory()
@@ -85,7 +92,8 @@ class ConfigWindow:
             'stim_dir': self.directories['stim'],
             'mask_position': "left" if self.side_scale.get() == 0 else "right",
             'blend_duration': duration,
-            'mask_cycle_time': cycle_time  # Add mask cycle time to the config
+            'mask_cycle_time': cycle_time,  # Add mask cycle time to the config
+            'border_offset': int(self.offset_entry.get())  # Add border offset to config
         }
 
         with open('config.json', 'w') as config_file:

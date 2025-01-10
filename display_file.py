@@ -16,7 +16,9 @@ def draw_checkerboard(outline, canvas, square_size=20, border_width=60):
     canvas_height = canvas.winfo_height()
     
     # Calculate the border area with a small offset to align checkerboard
-    offset = (square_size // 2) + 6  # Half square size plus 5 pixels for perfect alignment
+    config = load_config()
+    user_offset = config.get('border_offset', 6)  # Get user-defined offset or use 6 as default
+    offset = (square_size // 2) + user_offset  # Half square size plus user-defined offset
     start_x = canvas_x - border_width - offset
     start_y = canvas_y - border_width - offset
     end_x = canvas_x + canvas_width + border_width - offset
