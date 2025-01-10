@@ -6,7 +6,7 @@ from stim_file import Stimulus
 from config_file import ConfigWindow
 from base_module import load_config
 
-def draw_checkerboard(outline, canvas, square_size=20, border_width=40):
+def draw_checkerboard(outline, canvas, square_size=20, border_width=60):
     outline.delete("checkerboard")
     
     # Get the module canvas position relative to the outline canvas
@@ -15,11 +15,12 @@ def draw_checkerboard(outline, canvas, square_size=20, border_width=40):
     canvas_width = canvas.winfo_width()
     canvas_height = canvas.winfo_height()
     
-    # Calculate the border area
-    start_x = canvas_x - border_width
-    start_y = canvas_y - border_width
-    end_x = canvas_x + canvas_width + border_width
-    end_y = canvas_y + canvas_height + border_width
+    # Calculate the border area with a small offset to align checkerboard
+    offset = (square_size // 2) + 6  # Half square size plus 5 pixels for perfect alignment
+    start_x = canvas_x - border_width - offset
+    start_y = canvas_y - border_width - offset
+    end_x = canvas_x + canvas_width + border_width - offset
+    end_y = canvas_y + canvas_height + border_width - offset
     
     # Draw checkerboard pattern in the border area
     for i in range(start_x, end_x, square_size * 2):
