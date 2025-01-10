@@ -6,7 +6,7 @@ from stim_file import Stimulus
 from config_file import ConfigWindow
 from base_module import load_config
 
-def draw_checkerboard(outline, canvas, square_size=20):
+def draw_checkerboard(outline, canvas, square_size=20, border_width=40):
     outline.delete("checkerboard")
     
     # Get the module canvas position relative to the outline canvas
@@ -15,11 +15,23 @@ def draw_checkerboard(outline, canvas, square_size=20):
     canvas_width = canvas.winfo_width()
     canvas_height = canvas.winfo_height()
     
-    # Draw checkerboard pattern only behind the module canvas
-    for i in range(canvas_x, canvas_x + canvas_width, square_size * 2):
-        for j in range(canvas_y, canvas_y + canvas_height, square_size * 2):
-            outline.create_rectangle(i, j, i + square_size, j + square_size, fill="white", tags="checkerboard")
-            outline.create_rectangle(i + square_size, j + square_size, i + square_size * 2, j + square_size * 2, fill="white", tags="checkerboard")
+    # Calculate the border area
+    start_x = canvas_x - border_width
+    start_y = canvas_y - border_width
+    end_x = canvas_x + canvas_width + border_width
+    end_y = canvas_y + canvas_height + border_width
+    
+    # Draw checkerboard pattern in the border area
+    for i in range(start_x, end_x, square_size * 2):
+        for j in range(start_y, end_y, square_size * 2):
+            # Only draw if in the border area (not in the canvas area)
+            if (i < canvas_x or i >= canvas_x + canvas_width or 
+                j < canvas_y or j >= canvas_y + canvas_height):
+                outline.create_rectangle(i, j, i + square_size, j + square_size, 
+                                      fill="white", tags="checkerboard")
+                outline.create_rectangle(i + square_size, j + square_size, 
+                                      i + square_size * 2, j + square_size * 2, 
+                                      fill="white", tags="checkerboard")
 
 def create_module(root, module_class, image_dir, canvas_side, cycle_time=None):
     outline = tk.Canvas(root, bg="black")
@@ -28,7 +40,7 @@ def create_module(root, module_class, image_dir, canvas_side, cycle_time=None):
         module = module_class(root=outline, image_dir=image_dir, cycle_time=cycle_time)
     else:
         module = module_class(root=outline, image_dir=image_dir)
-    module.canvas.pack(side="top", fill="none", expand=True, padx=20, pady=20)
+    module.canvas.pack(side="top", fill="none", expand=True, padx=60, pady=60)
     
     def update_checkerboard(event=None):
         outline.update_idletasks()  # Ensure canvas positions are updated
