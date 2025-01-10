@@ -25,7 +25,13 @@ class BaseModule:
         self.place_fixation_point()
 
     def load_images(self):
+        if not os.path.exists(self.image_dir):
+            raise FileNotFoundError(f"Image directory not found: {self.image_dir}")
+        
         image_files = [os.path.join(self.image_dir, f) for f in os.listdir(self.image_dir) if f.endswith(('.png', '.jpg'))]
+        if not image_files:
+            raise ValueError(f"No image files found in directory: {self.image_dir}")
+            
         self.image_files = image_files
         if self.resize_dims:
             self.pil_images = [Image.open(fp).convert("RGBA").resize(self.resize_dims) for fp in image_files]

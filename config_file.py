@@ -14,8 +14,8 @@ class ConfigWindow:
 
         # Directory storage
         self.directories = {
-            'mask': "C:/Users/Admin/Python Projects/face_presentation/mond_masks",
-            'stim': "C:/Users/Admin/Python Projects/face_presentation/face_folder"
+            'mask': "mask_dir",
+            'stim': "stim_dir"
         }
 
         # Trials total
@@ -26,13 +26,13 @@ class ConfigWindow:
         self.trials_entry.insert(0, "5")  # Default value
 
         # Mask directory
-        self.mask_dir_label = tk.Label(master, text="Select Mask Directory:")
+        self.mask_dir_label = tk.Label(master, text="Select Mask Directory (default: mask_dir/):")
         self.mask_dir_label.grid(row=1, column=0, sticky='w')
         self.mask_dir_button = tk.Button(master, text="Browse", command=lambda: self.select_directory('mask'))
         self.mask_dir_button.grid(row=1, column=1, sticky='w')
 
         # Stimulus directory
-        self.stim_dir_label = tk.Label(master, text="Select Stimulus Directory:")
+        self.stim_dir_label = tk.Label(master, text="Select Stimulus Directory (default: stim_dir/):")
         self.stim_dir_label.grid(row=2, column=0, sticky='w')
         self.stim_dir_button = tk.Button(master, text="Browse", command=lambda: self.select_directory('stim'))
         self.stim_dir_button.grid(row=2, column=1, sticky='w')
@@ -45,7 +45,7 @@ class ConfigWindow:
         self.side_scale.set(0)  # Default to left (0 for left, 1 for right)
 
         # Stimulus transition duration
-        self.duration_label = tk.Label(master, text="Stimulus transition (3000 to 100000 ms):")
+        self.duration_label = tk.Label(master, text="Stimulus transition duration (3000 to 100000 ms):")
         self.duration_label.grid(row=4, column=0, sticky='w')
         self.duration_entry = tk.Entry(master)
         self.duration_entry.grid(row=4, column=1, sticky='w')

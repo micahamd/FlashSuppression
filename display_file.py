@@ -66,6 +66,10 @@ def write_trial_data_to_csv(trial_data):
             writer.writerow(data)
 
 def main():
+    # Hard-coded directory paths with correct folder names
+    default_mask_dir = 'C:/Users/micah/Downloads/Python Proj/cfs-task/FlashSuppression/mask_dir'
+    default_stim_dir = 'C:/Users/micah/Downloads/Python Proj/cfs-task/FlashSuppression/stim_dir'
+
     config_root = tk.Tk()
     config_app = ConfigWindow(config_root)
     config_root.mainloop()
@@ -74,6 +78,10 @@ def main():
     trials_total = int(config['trials_total'])
     cycle_time = int(config.get('mask_cycle_time', 100))
 
+    # Use the directories from config if provided, otherwise use defaults
+    mask_dir = config['mask_dir'] if 'mask_dir' in config and config['mask_dir'] else default_mask_dir
+    stim_dir = config['stim_dir'] if 'stim_dir' in config and config['stim_dir'] else default_stim_dir
+
     main_root = tk.Tk()
     main_root.title("Image Display Modules")
     main_root.geometry("1280x800")
@@ -81,8 +89,8 @@ def main():
     mask_position = tk.LEFT if config['mask_position'] == 'left' else tk.RIGHT
     stim_position = tk.RIGHT if mask_position == tk.LEFT else tk.LEFT
 
-    mask_module = create_module(main_root, ImageCycler, config['mask_dir'], mask_position, cycle_time)
-    stim_module = create_module(main_root, Stimulus, config['stim_dir'], stim_position)
+    mask_module = create_module(main_root, ImageCycler, mask_dir, mask_position, cycle_time)
+    stim_module = create_module(main_root, Stimulus, stim_dir, stim_position)
 
     trial_count = [0]
 

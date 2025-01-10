@@ -1,1 +1,1 @@
-{"trials_total": "5", "mask_dir": "C:/Users/micah/Downloads/Python Proj/cfs-task/FlashSuppression/mask_dir", "stim_dir": "C:/Users/micah/Downloads/Python Proj/cfs-task/FlashSuppression/stim_dir", "mask_position": "left", "blend_duration": 10000, "mask_cycle_time": 100}
+{"trials_total": "5", "mask_dir": "mask_dir", "stim_dir": "stim_dir", "mask_position": "left", "blend_duration": 10000, "mask_cycle_time": 100}
