@@ -6,22 +6,36 @@ from stim_file import Stimulus
 from config_file import ConfigWindow
 from base_module import load_config
 
-def draw_checkerboard(canvas, square_size=20):
-    canvas.delete("checkerboard")
-    for i in range(0, canvas.winfo_width(), square_size * 2):
-        for j in range(0, canvas.winfo_height(), square_size * 2):
-            canvas.create_rectangle(i, j, i + square_size, j + square_size, fill="grey", tags="checkerboard")
-            canvas.create_rectangle(i + square_size, j + square_size, i + square_size * 2, j + square_size * 2, fill="black", tags="checkerboard")
+def draw_checkerboard(outline, canvas, square_size=20):
+    outline.delete("checkerboard")
+    
+    # Get the module canvas position relative to the outline canvas
+    canvas_x = canvas.winfo_x()
+    canvas_y = canvas.winfo_y()
+    canvas_width = canvas.winfo_width()
+    canvas_height = canvas.winfo_height()
+    
+    # Draw checkerboard pattern only behind the module canvas
+    for i in range(canvas_x, canvas_x + canvas_width, square_size * 2):
+        for j in range(canvas_y, canvas_y + canvas_height, square_size * 2):
+            outline.create_rectangle(i, j, i + square_size, j + square_size, fill="white", tags="checkerboard")
+            outline.create_rectangle(i + square_size, j + square_size, i + square_size * 2, j + square_size * 2, fill="white", tags="checkerboard")
 
 def create_module(root, module_class, image_dir, canvas_side, cycle_time=None):
     outline = tk.Canvas(root, bg="black")
     outline.pack(side=canvas_side, fill="both", expand=True)
-    outline.bind("<Configure>", lambda event: draw_checkerboard(outline))
     if module_class == ImageCycler:
         module = module_class(root=outline, image_dir=image_dir, cycle_time=cycle_time)
     else:
         module = module_class(root=outline, image_dir=image_dir)
     module.canvas.pack(side="top", fill="none", expand=True, padx=20, pady=20)
+    
+    def update_checkerboard(event=None):
+        outline.update_idletasks()  # Ensure canvas positions are updated
+        root.after(100, lambda: draw_checkerboard(outline, module.canvas))  # Small delay for stability
+    
+    outline.bind("<Configure>", update_checkerboard)
+    root.after(100, update_checkerboard)  # Initial draw after window setup
     return module
 
 trial_data = []
