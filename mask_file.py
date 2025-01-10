@@ -2,26 +2,15 @@ import tkinter as tk
 from PIL import Image, ImageTk
 import os
 import time
+from base_module import BaseModule
 
-class ImageCycler:
-    MASK_CYCLE_TIME = 100  # time in milliseconds for each cycle
-
+class ImageCycler(BaseModule):
     def __init__(self, root, image_dir, cycle_time):
-        self.root = root if root else tk.Tk()
-        self.image_dir = image_dir
+        super().__init__(root=root, image_dir=image_dir, canvas_width=640, canvas_height=800, resize_dims=(640, 800))
         self.cycle_time = cycle_time
-        self.load_images()
-        self.canvas = tk.Canvas(root, width=640, height=800, bg='grey')
-        self.canvas.pack(fill='both', expand=False)
         self.current_image_index = 0
         self.image_cycle_running = False
         self.root.bind('<space>', self.handle_space_press)  # Bind space press event
-        self.place_fixation_point()  # Call this method to place the initial fixation point
-
-
-    def load_images(self):
-        image_files = [os.path.join(self.image_dir, f) for f in os.listdir(self.image_dir) if f.endswith('.jpg')]
-        self.images = [ImageTk.PhotoImage(Image.open(fp).resize((640, 800))) for fp in image_files]
 
     def update_canvas(self):
         if not self.image_cycle_running:
@@ -44,11 +33,6 @@ class ImageCycler:
             self.image_cycle_running = True
             self.start_blend()
             return None, None, None
-
-    def place_fixation_point(self):
-        center_x = self.canvas.winfo_width() / 2
-        center_y = self.canvas.winfo_height() / 2
-        self.canvas.create_text(center_x, center_y, text='+', font=('Arial', 20), fill='white')
 
     def start_blend(self):
         self.update_canvas()

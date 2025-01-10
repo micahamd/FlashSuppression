@@ -1,52 +1,30 @@
 import tkinter as tk
 import csv
-import json
 from functools import partial
 from mask_file import ImageCycler
 from stim_file import Stimulus
 from config_file import ConfigWindow
+from base_module import load_config
 
-def load_config():
-    try:
-        with open('config.json', 'r') as config_file:
-            return json.load(config_file)
-    except FileNotFoundError:
-        return {
-            'trials_total': 5,  # Default number of trials if no config file is found
-            'mask_dir': "C:/Users/Admin/Python Projects/face_presentation/mond_masks",
-            'stim_dir': "C:/Users/Admin/Python Projects/face_presentation/face_folder",
-            'mask_position': 'left'  # Default position of mask module
-        }
+def draw_checkerboard(canvas, square_size=20):
+    canvas.delete("checkerboard")
+    for i in range(0, canvas.winfo_width(), square_size * 2):
+        for j in range(0, canvas.winfo_height(), square_size * 2):
+            canvas.create_rectangle(i, j, i + square_size, j + square_size, fill="grey", tags="checkerboard")
+            canvas.create_rectangle(i + square_size, j + square_size, i + square_size * 2, j + square_size * 2, fill="black", tags="checkerboard")
 
 def create_module(root, module_class, image_dir, canvas_side, cycle_time=None):
-    # Create a canvas to act as the outline
     outline = tk.Canvas(root, bg="black")
     outline.pack(side=canvas_side, fill="both", expand=True)
-
-    # Function to draw a checkerboard pattern on the outline
-    def draw_checkerboard(event):
-        square_size = 20  # Size of each square in the checkerboard
-        outline.delete("checkerboard")  # Remove the old checkerboard pattern
-        for i in range(0, event.width, square_size * 2):
-            for j in range(0, event.height, square_size * 2):
-                outline.create_rectangle(i, j, i + square_size, j + square_size, fill="white", tags="checkerboard")
-                outline.create_rectangle(i + square_size, j + square_size, i + square_size * 2, j + square_size * 2, fill="white", tags="checkerboard")
-
-    # Bind the function to the <Configure> event
-    outline.bind("<Configure>", draw_checkerboard)
-
-    # Initialize the module with a specified part of the root window
+    outline.bind("<Configure>", lambda event: draw_checkerboard(outline))
     if module_class == ImageCycler:
         module = module_class(root=outline, image_dir=image_dir, cycle_time=cycle_time)
     else:
         module = module_class(root=outline, image_dir=image_dir)
-
-    # Pack the canvas with a margin to create the outline effect
-    module.canvas.pack(side="top", fill="none", expand=True, padx=20, pady=20)  # Add padding here
-
+    module.canvas.pack(side="top", fill="none", expand=True, padx=20, pady=20)
     return module
 
-trial_data = [] # List to store trial data
+trial_data = []
 
 def handle_space_press(event, modules, trial_count, trials_total, response):
     if trial_count[0] >= trials_total:
@@ -56,22 +34,29 @@ def handle_space_press(event, modules, trial_count, trials_total, response):
             module.root.quit()
         return
 
-    if modules[0].image_cycle_running:
-        for module in modules:
+    trial_data_point = {}
+    for module in modules:
+        if hasattr(module, 'image_cycle_running') and module.image_cycle_running:
             image_y_position, image_path, reaction_time = module.handle_space_press(event)
             if image_y_position is not None:
-                trial_data.append({
-                    'Trial Number': trial_count[0],
-                    'Y Position': image_y_position,
-                    'Image Path': image_path,
-                    'Reaction Time': reaction_time * 1000,
-                    'Response': response  # Now correctly records the key used
-                })
+                trial_data_point['Y Position'] = image_y_position
+                trial_data_point['Image Path'] = image_path
+                trial_data_point['Reaction Time'] = reaction_time * 1000
+        elif hasattr(module, 'blending') and module.blending:
+            image_y_position, image_path, reaction_time = module.handle_space_press(event)
+            if image_y_position is not None:
+                trial_data_point['Y Position'] = image_y_position
+                trial_data_point['Image Path'] = image_path
+                trial_data_point['Reaction Time'] = reaction_time * 1000
+        else:
+            module.handle_space_press(event)
+
+    if trial_data_point:
+        trial_data_point['Trial Number'] = trial_count[0]
+        trial_data_point['Response'] = response
+        trial_data.append(trial_data_point)
         print(f"Trial {trial_count[0]} completed.")
         trial_count[0] += 1
-    else:
-        for module in modules:
-            module.handle_space_press(event)
 
 def write_trial_data_to_csv(trial_data):
     with open('trial_data.csv', mode='w', newline='') as file:
@@ -81,33 +66,26 @@ def write_trial_data_to_csv(trial_data):
             writer.writerow(data)
 
 def main():
-    # Start with the configuration window
     config_root = tk.Tk()
     config_app = ConfigWindow(config_root)
     config_root.mainloop()
 
-    # Load the configuration
     config = load_config()
     trials_total = int(config['trials_total'])
-    cycle_time = int(config.get('mask_cycle_time', 100))  # Load cycle time from config or default to 100 ms
+    cycle_time = int(config.get('mask_cycle_time', 100))
 
-    # Start the main application
     main_root = tk.Tk()
     main_root.title("Image Display Modules")
     main_root.geometry("1280x800")
 
-    # Determine module positions based on config
     mask_position = tk.LEFT if config['mask_position'] == 'left' else tk.RIGHT
     stim_position = tk.RIGHT if mask_position == tk.LEFT else tk.LEFT
 
-    # Create both modules side by side, passing cycle_time to ImageCycler
     mask_module = create_module(main_root, ImageCycler, config['mask_dir'], mask_position, cycle_time)
     stim_module = create_module(main_root, Stimulus, config['stim_dir'], stim_position)
 
-    # Trial count tracker
     trial_count = [0]
 
-    # Bind each key using a loop with functools.partial to handle the response key
     for key in ('<space>', 'a', 'z'):
         main_root.bind(key, partial(handle_space_press, modules=[mask_module, stim_module], trial_count=trial_count, trials_total=trials_total, response=key))
 
@@ -115,7 +93,7 @@ def main():
         write_trial_data_to_csv(trial_data)
         main_root.destroy()
 
-    main_root.protocol("WM_DELETE_WINDOW", on_close)  # Attach the close handler
+    main_root.protocol("WM_DELETE_WINDOW", on_close)
     main_root.mainloop()
 
 if __name__ == "__main__":
