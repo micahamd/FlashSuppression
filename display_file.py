@@ -55,13 +55,17 @@ def create_module(root, module_class, image_dir, canvas_side, cycle_time=None):
 
 trial_data = []
 
-def handle_space_press(event, modules, trial_count, trials_total, response, switch_trial=None, main_root=None):
+def handle_space_press(event, modules, trial_count, trials_total, response, switch_trial=None, main_root=None, mask_side=None):
     if trial_count[0] >= trials_total:
         print("All trials completed.")
         write_trial_data_to_csv(trial_data)
         for module in modules:
             module.root.quit()
         return
+
+    # Get the current mask module and its side
+    mask_module = modules[0] if isinstance(modules[0], ImageCycler) else modules[1]
+    current_mask_side = mask_module.root.pack_info()['side']
         
     # Check if we need to switch positions (if we've reached or passed the switch trial)
     if switch_trial and trial_count[0] >= switch_trial:
@@ -78,13 +82,17 @@ def handle_space_press(event, modules, trial_count, trials_total, response, swit
         mask_module.root.pack_forget()
         stim_module.root.pack_forget()
         
-        mask_module.root.pack(side=tk.RIGHT if mask_info['side'] == 'left' else tk.LEFT, 
-                            fill="both", expand=True)
-        stim_module.root.pack(side=tk.LEFT if stim_info['side'] == 'right' else tk.RIGHT, 
+        new_mask_side = tk.RIGHT if mask_info['side'] == 'left' else tk.LEFT
+        mask_module.root.pack(side=new_mask_side, fill="both", expand=True)
+        stim_module.root.pack(side=tk.LEFT if new_mask_side == tk.RIGHT else tk.RIGHT, 
                             fill="both", expand=True)
         
         # Force update
         main_root.update_idletasks()
+        
+        # Update checkerboard after switching sides
+        mask_module.root.after(100, lambda: draw_checkerboard(mask_module.root, mask_module.canvas))
+        stim_module.root.after(100, lambda: draw_checkerboard(stim_module.root, stim_module.canvas))
 
     trial_data_point = {}
     for module in modules:
@@ -104,14 +112,9 @@ def handle_space_press(event, modules, trial_count, trials_total, response, swit
             module.handle_space_press(event)
 
     if trial_data_point:
-        # Get the current mask module to determine its position
-        mask_module = modules[0] if isinstance(modules[0], ImageCycler) else modules[1]
-        mask_info = mask_module.root.pack_info()
-        suppressor_position = "left" if mask_info['side'] == 'left' else "right"
-        
         trial_data_point['Trial Number'] = trial_count[0]
         trial_data_point['Response'] = response
-        trial_data_point['Suppressor Position'] = suppressor_position
+        trial_data_point['Suppressor Position'] = current_mask_side
         trial_data.append(trial_data_point)
         print(f"Trial {trial_count[0]} completed.")
         trial_count[0] += 1
@@ -124,6 +127,8 @@ def write_trial_data_to_csv(trial_data):
             writer.writerow(data)
 
 def main():
+    global trial_data
+    trial_data = []  # Reset trial data at start of each run
     # Hard-coded directory paths with correct folder names
     default_mask_dir = 'C:/Users/micah/Downloads/Python Proj/cfs-task/FlashSuppression/mask_dir'
     default_stim_dir = 'C:/Users/micah/Downloads/Python Proj/cfs-task/FlashSuppression/stim_dir'
@@ -164,7 +169,8 @@ def main():
                                   trials_total=trials_total, 
                                   response=key,
                                   switch_trial=switch_trial,
-                                  main_root=main_root))
+                                  main_root=main_root,
+                                  mask_side=mask_position))
 
     def on_close():
         write_trial_data_to_csv(trial_data)

@@ -1,6 +1,3 @@
 Trial Number,Y Position,Image Path,Reaction Time,Response,Suppressor Position
-0,450,stim_dir\fha2.png,3504.547595977783,<space>,left
-1,50,stim_dir\fha3.png,4220.221281051636,a,left
-2,50,stim_dir\fha4.png,4917.97661781311,z,left
-3,50,stim_dir\fha5.png,3521.5253829956055,a,left
-4,450,stim_dir\fha6.png,3908.8194370269775,z,left
+0,50,stim_dir\fha2.png,1064.0110969543457,a,left
+1,450,stim_dir\fha3.png,902.0214080810547,a,right
