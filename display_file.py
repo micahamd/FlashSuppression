@@ -225,25 +225,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    if config.get('switch_suppressor', False):
-        switch_trial = int(config.get('switch_trial', 0))
-
-    for key in ('<space>', 'a', 'z'):
-        main_root.bind(key, partial(handle_space_press, 
-                                  modules=[mask_module, stim_module], 
-                                  trial_count=trial_count, 
-                                  trials_total=trials_total, 
-                                  response=key,
-                                  switch_trial=switch_trial,
-                                  main_root=main_root,
-                                  mask_side=mask_position))
-
-    def on_close():
-        write_trial_data_to_csv(trial_data)
-        main_root.destroy()
-
-    main_root.protocol("WM_DELETE_WINDOW", on_close)
-    main_root.mainloop()
-
-if __name__ == "__main__":
-    main()
