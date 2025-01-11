@@ -94,34 +94,78 @@ def handle_space_press(event, modules, trial_count, trials_total, response, swit
         mask_module.root.after(100, lambda: draw_checkerboard(mask_module.root, mask_module.canvas))
         stim_module.root.after(100, lambda: draw_checkerboard(stim_module.root, stim_module.canvas))
 
-    trial_data_point = {}
-    for module in modules:
-        if hasattr(module, 'image_cycle_running') and module.image_cycle_running:
-            image_y_position, image_path, reaction_time = module.handle_space_press(event)
-            if image_y_position is not None:
-                trial_data_point['Y Position'] = image_y_position
-                trial_data_point['Image Path'] = image_path
-                trial_data_point['Reaction Time'] = reaction_time * 1000
-        elif hasattr(module, 'blending') and module.blending:
-            image_y_position, image_path, reaction_time = module.handle_space_press(event)
-            if image_y_position is not None:
-                trial_data_point['Y Position'] = image_y_position
-                trial_data_point['Image Path'] = image_path
-                trial_data_point['Reaction Time'] = reaction_time * 1000
-        else:
-            module.handle_space_press(event)
+    # Find the stimulus and mask modules
+    stim_module = next((module for module in modules if isinstance(module, Stimulus)), None)
+    mask_module = next((module for module in modules if isinstance(module, ImageCycler)), None)
+    
+    # Check if we're in an inter-trial interval (both modules inactive)
+    is_inter_trial = ((not stim_module.blending) and (not mask_module.image_cycle_running))
+    
+    # Only process trial data if we're not in an inter-trial interval
+    if not is_inter_trial:
+        trial_data_point = {}
+        
+        # Process module responses
+        for module in modules:
+            if hasattr(module, 'image_cycle_running') and module.image_cycle_running:
+                image_y_position, image_path, reaction_time = module.handle_space_press(event)
+                if image_y_position is not None:
+                    trial_data_point['Y Position'] = image_y_position
+                    trial_data_point['Image Path'] = image_path
+                    trial_data_point['Reaction Time'] = reaction_time * 1000
+            elif hasattr(module, 'blending') and module.blending:
+                image_y_position, image_path, reaction_time = module.handle_space_press(event)
+                if image_y_position is not None:
+                    trial_data_point['Y Position'] = image_y_position
+                    trial_data_point['Image Path'] = image_path
+                    trial_data_point['Reaction Time'] = reaction_time * 1000
+            else:
+                module.handle_space_press(event)
+        
+        # Get the current Y position from the stimulus module if available
+        if stim_module and stim_module.y_position and 'Y Position' not in trial_data_point:
+            trial_data_point['Y Position'] = stim_module.y_position
 
-    if trial_data_point:
-        trial_data_point['Trial Number'] = trial_count[0]
-        trial_data_point['Response'] = response
-        trial_data_point['Suppressor Position'] = current_mask_side
-        trial_data.append(trial_data_point)
-        print(f"Trial {trial_count[0]} completed.")
-        trial_count[0] += 1
+        if trial_data_point:
+            # Add trial metadata
+            trial_data_point['Trial Number'] = trial_count[0]
+            trial_data_point['Response'] = response
+            trial_data_point['Suppressor Position'] = current_mask_side
+            
+            # Set Stimulus Position based on Y Position
+            if 'Y Position' in trial_data_point:
+                trial_data_point['Stimulus Position'] = 'top' if trial_data_point['Y Position'] < 400 else 'below'
+                
+                # Calculate accuracy based on response and position
+                is_correct = (
+                    (response == 'a' and trial_data_point['Stimulus Position'] == 'top') or
+                    (response == 'z' and trial_data_point['Stimulus Position'] == 'below')
+                )
+                trial_data_point['Accuracy'] = 1 if is_correct else 0
+            else:
+                # Default values if no position data
+                trial_data_point['Stimulus Position'] = 'unknown'
+                trial_data_point['Accuracy'] = 0
+            trial_data.append(trial_data_point)
+            print(f"Trial {trial_count[0]} completed.")
+            trial_count[0] += 1
+    else:
+        # Just handle the space press during inter-trial interval without recording data
+        for module in modules:
+            module.handle_space_press(event)
 
 def write_trial_data_to_csv(trial_data):
     with open('trial_data.csv', mode='w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=['Trial Number', 'Y Position', 'Image Path', 'Reaction Time', 'Response', 'Suppressor Position'])
+        writer = csv.DictWriter(file, fieldnames=[
+            'Trial Number', 
+            'Y Position',
+            'Stimulus Position',
+            'Image Path', 
+            'Reaction Time', 
+            'Response', 
+            'Suppressor Position',
+            'Accuracy'
+        ])
         writer.writeheader()
         for data in trial_data:
             writer.writerow(data)
@@ -159,6 +203,28 @@ def main():
     
     # Get switch trial number from config if enabled
     switch_trial = None
+    if config.get('switch_suppressor', False):
+        switch_trial = int(config.get('switch_trial', 0))
+
+    for key in ('<space>', 'a', 'z'):
+        main_root.bind(key, partial(handle_space_press, 
+                                  modules=[mask_module, stim_module], 
+                                  trial_count=trial_count, 
+                                  trials_total=trials_total, 
+                                  response=key,
+                                  switch_trial=switch_trial,
+                                  main_root=main_root,
+                                  mask_side=mask_position))
+
+    def on_close():
+        write_trial_data_to_csv(trial_data)
+        main_root.destroy()
+
+    main_root.protocol("WM_DELETE_WINDOW", on_close)
+    main_root.mainloop()
+
+if __name__ == "__main__":
+    main()
     if config.get('switch_suppressor', False):
         switch_trial = int(config.get('switch_trial', 0))
 
