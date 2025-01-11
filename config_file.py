@@ -5,7 +5,7 @@ import json
 class ConfigWindow:
     def __init__(self, master):
         self.master = master
-        self.master.title("Configuration Settings")
+        self.master.title("b-CFS Configuration Settings")
         self.master.geometry("500x300")  # Set window size
 
         # Use padding and consistent grid placement for a cleaner look
