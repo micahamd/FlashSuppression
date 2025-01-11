@@ -174,8 +174,8 @@ def main():
     global trial_data
     trial_data = []  # Reset trial data at start of each run
     # Hard-coded directory paths with correct folder names
-    default_mask_dir = 'C:/Users/micah/Downloads/Python Proj/cfs-task/FlashSuppression/mask_dir'
-    default_stim_dir = 'C:/Users/micah/Downloads/Python Proj/cfs-task/FlashSuppression/stim_dir'
+    default_mask_dir = 'mask_dir'
+    default_stim_dir = 'stim_dir'
 
     config_root = tk.Tk()
     config_app = ConfigWindow(config_root)
