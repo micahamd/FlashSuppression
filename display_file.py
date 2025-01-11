@@ -55,13 +55,36 @@ def create_module(root, module_class, image_dir, canvas_side, cycle_time=None):
 
 trial_data = []
 
-def handle_space_press(event, modules, trial_count, trials_total, response):
+def handle_space_press(event, modules, trial_count, trials_total, response, switch_trial=None, main_root=None):
     if trial_count[0] >= trials_total:
         print("All trials completed.")
         write_trial_data_to_csv(trial_data)
         for module in modules:
             module.root.quit()
         return
+        
+    # Check if we need to switch positions
+    if switch_trial and trial_count[0] == switch_trial:
+        print(f"Switching suppressor positions at trial {trial_count[0]}")
+        # Get the current positions of modules
+        mask_module = modules[0] if isinstance(modules[0], ImageCycler) else modules[1]
+        stim_module = modules[0] if isinstance(modules[0], Stimulus) else modules[1]
+        
+        # Get current pack info
+        mask_info = mask_module.root.pack_info()
+        stim_info = stim_module.root.pack_info()
+        
+        # Swap sides
+        mask_module.root.pack_forget()
+        stim_module.root.pack_forget()
+        
+        mask_module.root.pack(side=tk.RIGHT if mask_info['side'] == 'left' else tk.LEFT, 
+                            fill="both", expand=True)
+        stim_module.root.pack(side=tk.LEFT if stim_info['side'] == 'right' else tk.RIGHT, 
+                            fill="both", expand=True)
+        
+        # Force update
+        main_root.update_idletasks()
 
     trial_data_point = {}
     for module in modules:
@@ -122,9 +145,20 @@ def main():
     stim_module = create_module(main_root, Stimulus, stim_dir, stim_position)
 
     trial_count = [0]
+    
+    # Get switch trial number from config if enabled
+    switch_trial = None
+    if config.get('switch_suppressor', False):
+        switch_trial = int(config.get('switch_trial', 0))
 
     for key in ('<space>', 'a', 'z'):
-        main_root.bind(key, partial(handle_space_press, modules=[mask_module, stim_module], trial_count=trial_count, trials_total=trials_total, response=key))
+        main_root.bind(key, partial(handle_space_press, 
+                                  modules=[mask_module, stim_module], 
+                                  trial_count=trial_count, 
+                                  trials_total=trials_total, 
+                                  response=key,
+                                  switch_trial=switch_trial,
+                                  main_root=main_root))
 
     def on_close():
         write_trial_data_to_csv(trial_data)
