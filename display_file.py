@@ -63,9 +63,9 @@ def handle_space_press(event, modules, trial_count, trials_total, response, swit
             module.root.quit()
         return
         
-    # Check if we need to switch positions
-    if switch_trial and trial_count[0] == switch_trial:
-        print(f"Switching suppressor positions at trial {trial_count[0]}")
+    # Check if we need to switch positions (if we've reached or passed the switch trial)
+    if switch_trial and trial_count[0] >= switch_trial:
+        print(f"Switching suppressor positions for remaining trials (starting at trial {trial_count[0]})")
         # Get the current positions of modules
         mask_module = modules[0] if isinstance(modules[0], ImageCycler) else modules[1]
         stim_module = modules[0] if isinstance(modules[0], Stimulus) else modules[1]
