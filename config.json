@@ -1,1 +1,1 @@
-{"trials_total": 4, "mask_dir": "mask_dir", "stim_dir": "stim_dir", "mask_position": "left", "blend_duration": 10000, "mask_cycle_time": 100, "border_offset": 6, "switch_suppressor": true, "switch_trial": 2}
+{"trials_total": 5, "mask_dir": "mask_dir", "stim_dir": "stim_dir", "mask_position": "left", "blend_duration": 10000, "mask_cycle_time": 100, "border_offset": 6, "switch_suppressor": false, "switch_trial": 0, "iti_message_delay": 500}

@@ -65,22 +65,29 @@ class ConfigWindow:
         self.offset_entry.grid(row=6, column=1, sticky='w')
         self.offset_entry.insert(0, "6")  # Default offset value
 
+        # Interval message delay
+        self.delay_label = tk.Label(master, text="Interval message delay (ms):")
+        self.delay_label.grid(row=7, column=0, sticky='w')
+        self.delay_entry = tk.Entry(master)
+        self.delay_entry.grid(row=7, column=1, sticky='w')
+        self.delay_entry.insert(0, "500")  # Default delay value
+
         # Switch suppressor checkbox and trial entry
         self.switch_var = tk.BooleanVar(value=False)
         self.switch_label = tk.Label(master, text="Switch suppressor?")
-        self.switch_label.grid(row=7, column=0, sticky='w')
+        self.switch_label.grid(row=8, column=0, sticky='w')
         self.switch_checkbox = tk.Checkbutton(master, variable=self.switch_var, command=self.toggle_switch_entry)
-        self.switch_checkbox.grid(row=7, column=1, sticky='w')
+        self.switch_checkbox.grid(row=8, column=1, sticky='w')
 
         self.switch_trial_label = tk.Label(master, text="After how many trials?")
-        self.switch_trial_label.grid(row=8, column=0, sticky='w')
+        self.switch_trial_label.grid(row=9, column=0, sticky='w')
         self.switch_trial_entry = tk.Entry(master, state='disabled')
-        self.switch_trial_entry.grid(row=8, column=1, sticky='w')
+        self.switch_trial_entry.grid(row=9, column=1, sticky='w')
         self.switch_trial_entry.insert(0, "0")
 
         # Save button
         self.save_button = tk.Button(master, text="Start with this configuration", command=self.save_config)
-        self.save_button.grid(row=9, column=0, columnspan=2, pady=10)  # Add some padding around the save button
+        self.save_button.grid(row=10, column=0, columnspan=2, pady=10)  # Add some padding around the save button
 
     def select_directory(self, module_type):
         directory = filedialog.askdirectory()
@@ -126,7 +133,8 @@ class ConfigWindow:
             'mask_cycle_time': cycle_time,
             'border_offset': int(self.offset_entry.get()),
             'switch_suppressor': self.switch_var.get(),
-            'switch_trial': int(self.switch_trial_entry.get()) if self.switch_var.get() else 0
+            'switch_trial': int(self.switch_trial_entry.get()) if self.switch_var.get() else 0,
+            'iti_message_delay': int(self.delay_entry.get())
         }
 
         with open('config.json', 'w') as config_file:

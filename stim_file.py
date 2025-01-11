@@ -59,8 +59,8 @@ class Stimulus(BaseModule):
             else:
                 reaction_time = None
             self.first_space_press_time = None
-            # Show ITI message after 500ms delay
-            self.root.after(500, self.show_iti_message)
+            # Show ITI message after configured delay
+            self.schedule_iti_message()
             return self.image_y_position, self.image_path, reaction_time
         else:
             # Clear any existing ITI message before starting new trial

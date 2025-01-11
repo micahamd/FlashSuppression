@@ -1,0 +1,4 @@
+pillow>=10.0.0  # For image processing
+tkinter  # Usually comes with Python installation
+json # For reading and writing JSON output files
+time # For better timing 

@@ -19,6 +19,8 @@ class BaseModule:
         self.canvas_width = canvas_width
         self.canvas_height = canvas_height
         self.resize_dims = resize_dims
+        self.config = load_config()
+        self.iti_delay = self.config.get('iti_message_delay', 500)  # Default to 500ms if not in config
         self.images = self.load_images()
         self.canvas = tk.Canvas(self.root, width=self.canvas_width, height=self.canvas_height, bg='grey')
         self.canvas.pack(fill='both', expand=False)
@@ -50,3 +52,7 @@ class BaseModule:
         center_y = self.canvas_height / 2 + 50  # Place below fixation point
         self.canvas.create_text(center_x, center_y, text='Press SPACE to continue', 
                               font=('Arial', 16), fill='white', tags='iti_message')
+
+    def schedule_iti_message(self):
+        """Schedule the ITI message to appear after the configured delay"""
+        self.root.after(self.iti_delay, self.show_iti_message)
