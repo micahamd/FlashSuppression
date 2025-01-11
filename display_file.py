@@ -17,7 +17,7 @@ def draw_checkerboard(outline, canvas, square_size=20, border_width=60):
     
     # Calculate the border area with a small offset to align checkerboard
     config = load_config()
-    user_offset = config.get('border_offset', 6)  # Get user-defined offset or use 6 as default
+    user_offset = config.get('border_offset', 6)  # Get user-defined offset to align border with canvas objects (6 on home PC)
     offset = (square_size // 2) + user_offset  # Half square size plus user-defined offset
     start_x = canvas_x - border_width - offset
     start_y = canvas_y - border_width - offset
@@ -104,15 +104,21 @@ def handle_space_press(event, modules, trial_count, trials_total, response, swit
             module.handle_space_press(event)
 
     if trial_data_point:
+        # Get the current mask module to determine its position
+        mask_module = modules[0] if isinstance(modules[0], ImageCycler) else modules[1]
+        mask_info = mask_module.root.pack_info()
+        suppressor_position = "left" if mask_info['side'] == 'left' else "right"
+        
         trial_data_point['Trial Number'] = trial_count[0]
         trial_data_point['Response'] = response
+        trial_data_point['Suppressor Position'] = suppressor_position
         trial_data.append(trial_data_point)
         print(f"Trial {trial_count[0]} completed.")
         trial_count[0] += 1
 
 def write_trial_data_to_csv(trial_data):
     with open('trial_data.csv', mode='w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=['Trial Number', 'Y Position', 'Image Path', 'Reaction Time', 'Response'])
+        writer = csv.DictWriter(file, fieldnames=['Trial Number', 'Y Position', 'Image Path', 'Reaction Time', 'Response', 'Suppressor Position'])
         writer.writeheader()
         for data in trial_data:
             writer.writerow(data)

@@ -1,6 +1,6 @@
-Trial Number,Y Position,Image Path,Reaction Time,Response
-0,450,stim_dir\fha2.png,2011.2814903259277,z
-1,450,stim_dir\fha3.png,720.9270000457764,z
-2,450,stim_dir\fha4.png,756.5352916717529,a
-3,50,stim_dir\fha5.png,542.8452491760254,a
-4,50,stim_dir\fha6.png,476.6807556152344,a
+Trial Number,Y Position,Image Path,Reaction Time,Response,Suppressor Position
+0,450,stim_dir\fha2.png,3504.547595977783,<space>,left
+1,50,stim_dir\fha3.png,4220.221281051636,a,left
+2,50,stim_dir\fha4.png,4917.97661781311,z,left
+3,50,stim_dir\fha5.png,3521.5253829956055,a,left
+4,450,stim_dir\fha6.png,3908.8194370269775,z,left

@@ -79,8 +79,8 @@ class ConfigWindow:
         self.switch_trial_entry.insert(0, "0")
 
         # Save button
-        self.save_button = tk.Button(master, text="Save Configuration", command=self.save_config)
-        self.save_button.grid(row=7, column=0, columnspan=2, pady=10)  # Add some padding around the save button
+        self.save_button = tk.Button(master, text="Start with this configuration", command=self.save_config)
+        self.save_button.grid(row=9, column=0, columnspan=2, pady=10)  # Add some padding around the save button
 
     def select_directory(self, module_type):
         directory = filedialog.askdirectory()
