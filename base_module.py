@@ -44,3 +44,9 @@ class BaseModule:
         center_x = self.canvas_width / 2
         center_y = self.canvas_height / 2
         self.canvas.create_text(center_x, center_y, text='+', font=('Arial', 20), fill='white')
+        
+    def show_iti_message(self):
+        center_x = self.canvas_width / 2
+        center_y = self.canvas_height / 2 + 50  # Place below fixation point
+        self.canvas.create_text(center_x, center_y, text='Press SPACE to continue', 
+                              font=('Arial', 16), fill='white', tags='iti_message')

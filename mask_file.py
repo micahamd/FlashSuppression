@@ -28,8 +28,12 @@ class ImageCycler(BaseModule):
             self.image_cycle_running = False
             self.canvas.delete("all")
             self.place_fixation_point()
+            # Show ITI message after 500ms delay
+            self.root.after(500, self.show_iti_message)
             return None, None, None
         else:
+            # Clear any existing ITI message before starting new trial
+            self.canvas.delete("iti_message")
             self.image_cycle_running = True
             self.start_blend()
             return None, None, None
