@@ -1,0 +1,13 @@
+{
+  "trials_total": "1",
+  "mask_position_value": 0,
+  "blend_duration": "5000",
+  "reverse_alpha": false,
+  "mask_cycle_time": "100",
+  "iti_message_delay": "500",
+  "iti_message_text": "Press SPACE to continue",
+  "switch_suppressor": false,
+  "switch_trial": "",
+  "participant_id": "1111",
+  "practice_enabled": true
+}

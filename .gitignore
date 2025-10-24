@@ -1,0 +1,81 @@
+# ============================================================================
+# CFS Task - Git Ignore Configuration
+# ============================================================================
+
+# Python cache and compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+.env/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec.bak
+*.exe
+*.app
+*.pkg
+display_file.build/
+display_file.dist/
+cfs_experiment/
+
+# Distribution / packaging
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Data files (generated at runtime)
+*.csv
+*.json
+!config.json
+!config_ui_settings.json
+!requirements.txt
+trial_data*.csv
+practice_trial_data*.csv
+temp_*.json
+reaction_times.json
+exit_flag.txt
+
+# Large media files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+test_gif.gif
+*.mp4
+*.avi
+*.mov
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS files
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Documentation artifacts (keep source, ignore generated)
+*.md.bak
+*.txt.bak
+
+# Temporary files
+*.tmp
+*.bak
+runcfs.txt
